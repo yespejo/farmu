@@ -151,39 +151,6 @@ class user extends httpRequest {
         }
     }
 
-    public function generateOTP() {
-       if ($_SERVER['REQUEST_METHOD'] != "POST" && $_SERVER['REQUEST_METHOD'] != "OPTIONS") {
-            $this->sendResponse(json_encode(array('status' => "error", "msg" => "metodo no soportado")), 200);
-        } else {
-            $postFile = file_get_contents("php://input");
-            $objectPost = json_decode($postFile);
-            
-            $mail = new PHPMailer(true);
-            $calOTP = substr(strtoupper(base64_encode(openssl_encrypt($objectPost->userEmail + date("Ymd"), 'aes-256-cbc', getallheaders()['key'], 0, base64_decode(getallheaders()['controller'])))),0,7);
-
-            try {
-                $mail->isSMTP();
-                $mail->Host       = 'smtp.hostinger.com';
-                $mail->SMTPAuth   = true;
-                $mail->Username   = 'customer@plazapp.com.co';
-                $mail->Password   = 'Dani992012*';
-                $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-                $mail->Port       = 465;
-                $mail->setFrom('customer@plazapp.com.co', 'Equipo de People');
-                $mail->addAddress($objectPost->userEmail);
-                $mail->isHTML(true);
-                $mail->Subject = 'Tu OTP para recuperar tu cuenta de People';
-                $mail->Body = $calOTP;
-                $mail->send();
-                $response['key'] = substr(str_shuffle('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'), 0, 16);
-            } catch (Exception $e) {
-                $response['status'] = "error";
-                $response['msg'] = "Problemas generando la OTP intenta de nuevo mas adelante";
-                $this->sendResponse(json_encode($response, JSON_UNESCAPED_UNICODE), 500);
-            }
-            $this->sendResponse(json_encode($response, JSON_UNESCAPED_UNICODE), 200);
-        }
-    }
 
     public function  changePasswordAccount() {
        if ($_SERVER['REQUEST_METHOD'] != "PUT" && $_SERVER['REQUEST_METHOD'] != "OPTIONS") {
@@ -205,83 +172,6 @@ class user extends httpRequest {
                 $this->sendResponse(json_encode($response, JSON_UNESCAPED_UNICODE), 500);
             }
         } 
-    }
-
-    public function authUser () {
-       if ($_SERVER['REQUEST_METHOD'] != "POST" && $_SERVER['REQUEST_METHOD'] != "OPTIONS") {
-            $this->sendResponse(json_encode(array('status' => "error", "msg" => "metodo no soportado")), 200);
-        } else {
-            $postFile = file_get_contents("php://input");
-            $objectPost = json_decode($postFile);
-            $this->_conn->query("SET lc_time_names = 'es_ES'");
-            $gClient = new Google_Client();
-            $gClient->setApplicationName('plazapp');
-            $gClient->setClientId("155469159413-il1kt3ctmdj7joja6q7f0pjhd1bugoe9.apps.googleusercontent.com");
-            $gClient->setClientSecret("D5mPe51_4DIztlz253DtICzR");
-            $gClient->setRedirectUri("https://www.plazapp.com.co");
-            $gClient->setAccessType("offline");
-            $gClient->setApprovalPrompt("force");
-            $google_oauthV2 = new Google_Oauth2Service($gClient);
-            $gClient->authenticate($objectPost->code); 
-            if($gClient->getAccessToken()){
-                $gpUserProfile = $google_oauthV2->userinfo->get();
-                $querySql = "SELECT *, DATE_FORMAT(user_date,'%M %d de %Y') AS user_create_date FROM cyp_user INNER JOIN cyp_level ON (cyp_level.level_id = cyp_user.level_id) WHERE user_email = '" . $gpUserProfile['email'] . "' AND user_password = '" . $gpUserProfile['id'] . "'";
-                $query = $this->_conn->query($querySql);
-                $filas = $query->fetchAll(PDO::FETCH_ASSOC);
-                $num = count($filas);
-                if ($num > 0) {
-                    $cont = 0;
-                    foreach ($filas as $row){
-                        $userObj->userId = $row['user_id'];
-                        $userObj->userName = $row['user_name'];
-                        $userObj->userEmail = $row['user_email'];
-                        $userObj->userStatus = $row['user_status'];
-                        $userObj->userNickname = $row['user_nickname'];
-                        $userObj->userAvatar = $row['user_avatar'];
-                        $userObj->userCreateDate = $row['user_create_date'];
-                        $userObj->levelName = $row['level_name'];
-                        $response[$cont] = $userObj;
-                        $cont++;
-                    }
-                    if($userObj->userStatus === 'Enable') {
-                        $this->tokenJwt($userObj);
-                    } else {
-                        $response['status'] = "error";
-                        $response['msg'] = "Usuario desabilitado";
-                        $this->sendResponse(json_encode($response, JSON_UNESCAPED_UNICODE), 500);
-                    }
-                } else {
-                    $querySql = "INSERT INTO cyp_user (user_email, user_password, user_name) VALUES ('" . $gpUserProfile['email'] . "', '" . $gpUserProfile['id'] . "', '" . $gpUserProfile['name'] . "')";
-
-                    $query = $this->_conn->prepare($querySql);
-                    $query->execute();
-                    $querySql = "SELECT *, DATE_FORMAT(user_date,'%M %d de %Y') AS user_create_date FROM cyp_user INNER JOIN cyp_level ON (cyp_level.level_id = cyp_user.level_id) WHERE user_email = '" . $gpUserProfile['email'] . "' AND user_password = '" . $gpUserProfile['id'] . "'";
-                    $query = $this->_conn->query($querySql);
-                    $filas = $query->fetchAll(PDO::FETCH_ASSOC);
-                    $num = count($filas);
-                    if ($num > 0) {
-                        $cont = 0;
-                        foreach ($filas as $row){
-                            $userObj->userId = $row['user_id'];
-                            $userObj->userName = $row['user_name'];
-                            $userObj->userEmail = $row['user_email'];
-                            $userObj->userStatus = $row['user_status'];
-                            $userObj->userNickname = $row['user_nickname'];
-                            $userObj->userAvatar = $row['user_avatar'];
-                            $userObj->userCreateDate = $row['user_create_date'];
-                            $userObj->levelName = $row['level_name'];
-                            $response[$cont] = $userObj;
-                            $cont++;
-                        }
-                        $this->tokenJwt($userObj);
-                    } else {
-                        $response['status'] = "error";
-                        $response['msg'] = "Credenciales incorrectas";
-                        $this->sendResponse(json_encode($response, JSON_UNESCAPED_UNICODE), 500);
-                    }
-                }
-            }
-        }
     }
 
     public function tokenJwt ($userObj) {
