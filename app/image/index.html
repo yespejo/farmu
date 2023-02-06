@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Redimensionar Imágenes con JavaScript</title>
+    <link rel="stylesheet" href="../style/image.css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+    <script type="text/javascript" src="../script/global.js?v=1"></script>
+    <script type="text/javascript" src="../script/image.js"></script>
+    <script type="text/javascript" src="../script/dashboard.js"></script>
+    <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
+  </head>
+
+  <body ng-app="app" ng-controller="loginController"  onload="appImage.loadEnviroment()">
+    <div class="margin">
+      <div>URL</div>
+      <div><input type="text" id="urlRename"></div>
+      <div onclick="appDashboard.sendURL()">Enviar</div>
+      <div id="urlResponse"></div>
+    </div>
+    <div class="wrapper">
+      <div class="upload-box">
+        <input type="file" accept="image/*" hidden>
+        <img src="upload-icon.svg"> 
+        <p>Busca la imagen a redimensionar</p>
+      </div>
+      <div class="content">
+        <div class="row sizes">
+          <div class="column width">
+            <label>Ancho</label>
+            <input type="number">
+          </div>
+          <div class="column height">
+            <label>Alto</label>
+            <input type="number">
+          </div>
+        </div>
+        <div class="row checkboxes">
+          <div class="column ratio">
+            <input type="checkbox" id="ratio" checked>
+            <label for="ratio">Bloquear la relación del aspecto</label>
+          </div>
+          <div class="column quality">
+            <input type="checkbox" id="quality">
+            <label for="quality">Reducir la calidad</label>
+          </div>
+        </div>
+        <button class="download-btn">Descargar la imagen como JPEG</button>
+      </div>
+    </div>
+  </body>
+</html>

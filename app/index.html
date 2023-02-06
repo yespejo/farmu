@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html" charset="UTF-8" />
+	<link rel="stylesheet" href="style/login.css">
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+	<script type="text/javascript" src="script/global.js?v=1"></script>
+	<script type="text/javascript" src="script/login.js?v=1"></script>
+	<script type="text/javascript" src="script/md5.min.js"></script>
+	<script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
+</head>
+<body ng-app="app" ng-controller="loginController" >
+	<div class="backgound">
+		<div class="content-login">
+			<div class="content-left" id="idLeftLogin">
+				<div class="icon"></div>
+				<div class="text-login">usa tu cuenta</div>
+				<div class="content-input">
+					<input type="text" name="indexEmail"  id="idIndexEmailLogin" placeholder="Dirección de correo">
+					<div id="idIndexErrorEmailLogin"></div>
+				</div>
+				<div class="content-input">
+					<input type="password" name="indexPassword" id="idIndexPasswordLogin" placeholder="Clave">
+				</div>
+				<div class="text-login text-link" onclick="appLogin.recovery()">Olvidaste tu clave</div>
+				<div class="button-login" onclick="appLogin.loginUser()">Iniciar sesión</div>
+			</div>
+			<div class="content-right" id="idRightLogin">
+				<div class="title-font title-white">¡Hola, Hola!</div>
+				<div class="text-login text-login-white">Ingresa tu información personal y comienza tu experiencia con nosotros</div>
+				<div class="button-login button-login-white" onclick="appLogin.singUp()">Inscribirse</div>
+			</div>
+			<div class="content-right content-new-account-left" id="idLeftCreate">
+				<div class="title-font title-white">¡Bienvenido de nuevo!</div>
+				<div class="text-login text-login-white">para mantenerse conectado con nosotros por favor inicie sesión con su información personal</div>
+				<div class="button-login button-login-white" onclick="appLogin.singIn()">Iniciar sesión</div>
+			</div>
+			<div class="content-left content-new-account-right" id="idRightCreate">
+				<div class="title-font">Crea tu cuenta</div>
+				<div class="text-login">o usa tu dirección de correo para registrarte</div>
+				<div class="content-input">
+					<input type="text" name="indexName" id="idIndexName" placeholder="Nombre">
+				</div>
+				<div class="content-input">
+					<input type="text" name="indexEmail" id="idIndexEmail" placeholder="Dirección de correo">
+					<div id="idIndexErrorEmail"></div>
+				</div>
+				<div class="content-input">
+					<input type="password" name="indexPassword" id="idIndexPassword" placeholder="Clave" onkeyup="appLogin.validPassword(this.value, 'idIndexLevelPassword')">
+					<div id="idIndexLevelPassword" class="password-level"></div>
+					<div id="idIndexErrorPassword"></div>
+				</div>
+				<div class="content-input">
+					<div id="captcha"></div>
+					<input type="text" placeholder="Captcha" id="cpatchaTextBox"/>
+				</div>
+				<div class="button-login"  onclick="appLogin.createAccount()">Inscribirse</div>
+			</div>
+			<div class="content-right content-new-account-left" id="idLeftRecovery">
+				<div class="title-font title-white">¡Bienvenido de nuevo!</div>
+				<div class="text-login text-login-white">para mantenerse conectado con nosotros por favor inicie sesión con su información personal</div>
+				<div class="button-login button-login-white" onclick="appLogin.singIn()">Iniciar sesión</div>
+			</div>
+			<div class="content-left content-new-account-right" id="idRightRecobery">
+				<div class="title-font">Restaura tu clave</div>
+				<div class="text-login">usa tu dirección de correo para recibir tu OTP <br>y lograr restaurar las credenciales de tu cuenta</div>
+				<div class="content-input">
+					<input type="text" name="indexEmail" id="idIndexEmailOTP" placeholder="Dirección de correo">
+					<div id="idIndexErrorEmailOTP"></div>
+				</div>
+				<div class="button-login"  onclick="appLogin.sentMailOTP()">Genera tu OTP</div>
+				<div class="content-input">
+					<input type="password" name="indexPassword" id="idIndexPasswordOTP" placeholder="Clave" onkeyup="appLogin.validPassword(this.value, 'idIndexLevelPasswordRecovery')">
+					<div id="idIndexLevelPasswordRecovery" class="password-level"></div>
+					<div id="idIndexErrorPasswordOTP"></div>
+				</div>
+				<div class="content-input">
+					<input type="text" name="indexOTP" id="idIndexOTP" placeholder="OTP">
+				</div>
+				<div class="button-login"  onclick="appLogin.changePassword()">Restaurar</div>
+			</div>
+			<div class="content-right content-new-account-left" id="idLeftCompany">
+				<div class="title-font title-white">¡Bienvenido de nuevo!</div>
+				<div class="text-login text-login-white">para mantenerse conectado con nosotros por favor inicie sesión con su información personal</div>
+				<div class="button-login button-login-white" onclick="appLogin.singIn()">Iniciar sesión</div>
+			</div>
+			<div class="content-left content-new-account-right" id="idRightCompany">
+				<div class="title-font">Crea tu empresa</div>
+				<div class="text-login">como no tienes empresa asignada debes crear una<br>con esta podras disfrutar de la plataforma</div>
+				<div class="content-input">
+					<input type="text" name="indexNameCompany" id="idIndexNameCompany" placeholder="Nombre">
+				</div>
+				<div class="content-input">
+					<input type="text" name="indexAddressCompany" id="idIndexAddressCompany" placeholder="Dirección (opcional)">
+				</div>
+				<div class="content-input">
+					<input type="number" name="indexPhoneCompany" id="idIndexPhoneCompany" placeholder="Teléfono">
+				</div>
+				<div class="button-login"  onclick="appLogin.createCompany()">Registrar</div>
+			</div>
+		</div>
+	</div>
+	<div class="error-message" id="idErrorMessageLogin"></div>
+	<div class="loading" id="idLoadingPage"><img src="style/img/images-loader.gif"></div>
+</body>
+</html>
